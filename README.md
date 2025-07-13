@@ -34,7 +34,7 @@ CampusEase is a full-stack web application designed to digitize and streamline c
 ## 📦 Setup
 
 1. Clone the repo  
-   `git clone https://github.com/ZTSALAHUDDIN/CampuEase.git`
+   `git clone https://github.com/ZTSALAHUDDIN/CampusEase.git`
 
 2. Install dependencies  
    `npm install`
