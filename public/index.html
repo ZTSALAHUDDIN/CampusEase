@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusEase - Campus Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B82F6">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold">CampusEase</h1>
+                    <div id="nav-links" class="hidden md:flex space-x-4">
+                        <!-- Navigation links will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="user-email" class="text-sm"></span>
+                    <button id="logout-btn" class="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Login/Register Form -->
+        <div id="auth-section" class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-center mb-6">Welcome to CampusEase</h2>
+            
+            <div class="mb-4">
+                <div class="flex rounded-lg overflow-hidden">
+                    <button id="login-tab" class="flex-1 bg-blue-600 text-white py-2 px-4 font-medium">
+                        Login
+                    </button>
+                    <button id="register-tab" class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 font-medium">
+                        Register
+                    </button>
+                </div>
+            </div>
+
+            <form id="auth-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="email" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                    <input type="password" id="password" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div id="register-fields" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                        <input type="text" id="name" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Role</label>
+                        <select id="role" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <option value="student">Student</option>
+                            <option value="faculty">Faculty</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Department</label>
+                        <input type="text" id="department" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+                    <span id="auth-btn-text">Login</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="hidden">
+            <!-- Student Dashboard -->
+            <div id="student-dashboard" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Submit Maintenance Request</h3>
+                        <button onclick="showMaintenanceForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            New Request
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Request Event Permission</h3>
+                        <button onclick="showEventForm()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                            New Event
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Chat with AI Assistant</h3>
+                        <button onclick="showChatBot()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                            Open Chat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- My Requests -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-lg font-semibold mb-4">My Requests</h3>
+                    <div id="my-requests" class="space-y-4">
+                        <!-- Requests will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Announcements -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-lg font-semibold mb-4">Announcements</h3>
+                    <div id="announcements" class="space-y-4">
+                        <!-- Announcements will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Event Calendar</h3>
+                    <div id="calendar"></div>
+                </div>
+            </div>
+
+            <!-- Faculty Dashboard -->
+            <div id="faculty-dashboard" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Create Announcement</h3>
+                        <button onclick="showAnnouncementForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            New Announcement
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">Request Analytics</h3>
+                        <canvas id="analytics-chart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- All Requests -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">All Requests</h3>
+                    <div id="all-requests" class="space-y-4">
+                        <!-- Requests will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Maintenance Request Modal -->
+    <div id="maintenance-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">Submit Maintenance Request</h3>
+            <form id="maintenance-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Type</label>
+                    <select id="maintenance-type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">Select Type</option>
+                        <option value="electricity">Electricity</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="hvac">HVAC</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                    <textarea id="maintenance-description" required rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Image (Optional)</label>
+                    <input type="file" id="maintenance-image" accept="image/*" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="hideMaintenanceForm()" 
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Request Modal -->
+    <div id="event-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">Request Event Permission</h3>
+            <form id="event-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Event Name</label>
+                    <input type="text" id="event-name" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Date</label>
+                    <input type="date" id="event-date" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Venue</label>
+                    <input type="text" id="event-venue" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Purpose</label>
+                    <textarea id="event-purpose" required rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="hideEventForm()" 
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="button" onclick="generateLetter()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                        Generate Letter
+                    </button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+            
+            <div id="generated-letter" class="hidden mt-4 p-4 bg-gray-100 rounded-lg">
+                <h4 class="font-semibold mb-2">Generated Letter:</h4>
+                <div id="letter-content" class="text-sm whitespace-pre-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Bot Modal -->
+    <div id="chat-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4 h-96 flex flex-col">
+            <h3 class="text-lg font-semibold mb-4">AI Assistant</h3>
+            <div id="chat-messages" class="flex-1 overflow-y-auto mb-4 space-y-2">
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <p class="text-sm">Hello! I'm your campus assistant. Ask me about submitting requests, deadlines, or general campus information.</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <input type="text" id="chat-input" placeholder="Type your message..." 
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                <button onclick="sendChatMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Send
+                </button>
+                <button onclick="hideChatBot()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcement-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">Create Announcement</h3>
+            <form id="announcement-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                    <input type="text" id="announcement-title" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+                    <textarea id="announcement-message" required rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Audience</label>
+                    <select id="announcement-audience" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="all">All Users</option>
+                        <option value="students">Students Only</option>
+                        <option value="faculty">Faculty Only</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="hideAnnouncementForm()" 
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        Post Announcement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/firebase-config.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/requests.js"></script>
+    <script src="/js/announcements.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/calendar.js"></script>
+</body>
+</html>
