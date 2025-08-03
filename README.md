@@ -44,6 +44,8 @@ CampusEase is a full-stack web application designed to digitize and streamline c
 4. Run the development server  
    `npm run dev`
 
+# Incase you want to check this amazing app out without setting up, here is the video link: https://youtu.be/AE5KIX3538Y
+
 ---
 
 > Built with ❤️ for better campus coordination.
