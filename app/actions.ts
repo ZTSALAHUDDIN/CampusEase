@@ -221,17 +221,38 @@ export async function createAnnouncement(formData: FormData) {
 //////////////////////////
 // 📜 Get All Announcements
 //////////////////////////
-
-export async function getAnnouncements() {
+interface Announcement {
+  id: string
+  title: string
+  message: string
+  audience: string
+  authorId: string
+  authorEmail: string
+  authorName: string
+  priority: string
+  createdAt: { seconds: number } | null
+}
+export async function getAnnouncements(): Promise<Announcement[]> {
   try {
-    const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"))
+    const q = query(
+      collection(db, "announcements"),
+      orderBy("createdAt", "desc")
+    )
+
     const snap = await getDocs(q)
 
     return snap.docs.map((doc) => {
       const data = doc.data()
+
       return {
         id: doc.id,
-        ...data,
+        title: data.title ?? "",
+        message: data.message ?? "",
+        audience: data.audience ?? "",
+        authorId: data.authorId ?? "",
+        authorEmail: data.authorEmail ?? "",
+        authorName: data.authorName ?? "",
+        priority: data.priority ?? "low",
         createdAt: data.createdAt?.seconds
           ? { seconds: data.createdAt.seconds }
           : null,
@@ -260,7 +281,7 @@ export async function generateEventLetter(eventDetails: {
 
 export async function chatWithGemini(message: string): Promise<string> {
   try {
-    const res = await fetch("http://localhost:3000/api/gemini/chat", {
+    const res = await fetch("/api/gemini/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
