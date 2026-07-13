@@ -116,7 +116,9 @@ export function FacultyDashboard() {
               <CardDescription>Overview of request statistics</CardDescription>
             </CardHeader>
             <CardContent>
-              <RequestsChart key={refreshChart ? "chart-a" : "chart-b"} />
+              <RequestsChart
+              key={refreshChart ? "chart-a" : "chart-b"}
+              refreshKey={refreshChart ? 1 : 0}/>
             </CardContent>
           </Card>
         </div>
