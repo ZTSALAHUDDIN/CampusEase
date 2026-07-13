@@ -42,18 +42,28 @@ export function StudentEventPermissions() {
     )
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const events = snapshot.docs.map((doc) => {
-        const data = doc.data()
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.seconds
-            ? { seconds: data.createdAt.seconds }
-            : null,
-        }
-      })
-      setRequests(events)
-    })
+  const events: EventRequest[] = snapshot.docs.map((doc) => {
+    const data = doc.data()
+
+    return {
+      id: doc.id,
+      eventName: data.eventName ?? "",
+      date: data.date ?? "",
+      time: data.time ?? "",
+      venue: data.venue ?? "",
+      purpose: data.purpose ?? "",
+      expectedAttendees: data.expectedAttendees ?? 0,
+      generatedLetter: data.generatedLetter ?? "",
+      status: (data.status ?? "pending") as EventRequest["status"],
+      requestType: "event",
+      createdAt: data.createdAt?.seconds
+        ? { seconds: data.createdAt.seconds }
+        : { seconds: 0 },
+    }
+  })
+
+  setRequests(events)
+})
 
     return () => unsubscribe()
   }, [userData?.uid])
