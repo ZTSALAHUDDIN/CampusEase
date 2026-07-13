@@ -136,7 +136,7 @@ export function StudentDashboard() {
             <CardDescription>Track your event permission submissions</CardDescription>
           </CardHeader>
           <CardContent className="max-h-[400px] overflow-y-auto space-y-2">
-            {userData?.uid && <StudentEventPermissions userId={userData.uid} />}
+            {userData?.uid && <StudentEventPermissions />}
           </CardContent>
         </Card>
 
